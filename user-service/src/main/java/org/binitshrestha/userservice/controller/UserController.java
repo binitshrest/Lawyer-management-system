@@ -1,44 +1,45 @@
 package org.binitshrestha.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.binitshrestha.userservice.dto.UserRequestDto;
-import org.binitshrestha.userservice.dto.UserResponseDto;
-import org.binitshrestha.userservice.dto.UserResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.binitshrestha.userservice.dto.request.UserRequestDto;
+import org.binitshrestha.userservice.dto.response.UserResponse;
+import org.binitshrestha.userservice.dto.response.UserResponseDto;
+import org.binitshrestha.userservice.mapper.UserMapper;
 import org.binitshrestha.userservice.model.User;
 import org.binitshrestha.userservice.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
+@Slf4j
 public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Optional<User>> authenticatedUser(){
+    public ResponseEntity<UserResponseDto> authenticatedUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        Optional<User> currentUser = userService.findByUsername(username);
-        return ResponseEntity.ok(currentUser);
+        String userEmail = authentication.getName();
+        User user = userService.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        UserResponseDto response = UserMapper.toResponse(user);
+        log.debug("Authenticated userDto response value ->", response.toString());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers(){
         List<UserResponse> allUser = userService.getAllUsers();
         return ResponseEntity.ok(allUser);
-    }
-    @PostMapping
-    public ResponseEntity<UserResponseDto> registerUser(@RequestBody UserRequestDto userRequest){
-        UserResponseDto response = userService.registerUser(userRequest);
-        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("/{id}")

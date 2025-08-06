@@ -1,8 +1,10 @@
 package org.binitshrestha.userservice.mapper;
 
-import org.binitshrestha.userservice.dto.UserRequestDto;
-import org.binitshrestha.userservice.dto.UserResponse;
-import org.binitshrestha.userservice.dto.UserResponseDto;
+import org.binitshrestha.userservice.dto.RoleDto;
+import org.binitshrestha.userservice.dto.request.UserRequestDto;
+import org.binitshrestha.userservice.dto.response.RegisterUserResDto;
+import org.binitshrestha.userservice.dto.response.UserResponse;
+import org.binitshrestha.userservice.dto.response.UserResponseDto;
 import org.binitshrestha.userservice.model.User;
 
 public class UserMapper {
@@ -35,4 +37,17 @@ public class UserMapper {
                 .role(String.valueOf(newUser.getRole()))
                 .build();
     }
+    public static RegisterUserResDto toResponseDto(User newAuthUser){
+        return RegisterUserResDto.builder()
+                .email(newAuthUser.getEmail())
+                .firstName(newAuthUser.getFirstName())
+                .lastName(newAuthUser.getLastName())
+                .role(RoleDto.builder()
+                        .name(newAuthUser.getRole().getName().toString())
+                        .description(newAuthUser.getRole().getDescription())
+                        .build()
+                ).build();
+    }
+
+
 }

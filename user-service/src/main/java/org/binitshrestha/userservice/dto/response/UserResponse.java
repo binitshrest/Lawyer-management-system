@@ -1,4 +1,4 @@
-package org.binitshrestha.userservice.dto;
+package org.binitshrestha.userservice.dto.response;
 
 import lombok.Builder;
 import org.binitshrestha.userservice.model.RoleType;

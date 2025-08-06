@@ -1,10 +1,12 @@
 package org.binitshrestha.userservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.binitshrestha.userservice.dto.LoginUserDto;
-import org.binitshrestha.userservice.dto.LoginUserResDto;
-import org.binitshrestha.userservice.dto.RegisterUserReqDto;
-import org.binitshrestha.userservice.dto.RegisterUserResDto;
+import org.binitshrestha.userservice.dto.*;
+import org.binitshrestha.userservice.dto.request.LoginUserDto;
+import org.binitshrestha.userservice.dto.request.RegisterUserReqDto;
+import org.binitshrestha.userservice.dto.response.RegisterUserResDto;
+import org.binitshrestha.userservice.exception.EmailAlreadyExistsException;
+import org.binitshrestha.userservice.mapper.UserMapper;
 import org.binitshrestha.userservice.model.Role;
 import org.binitshrestha.userservice.model.RoleType;
 import org.binitshrestha.userservice.model.User;
@@ -14,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -25,14 +28,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
 
+    @Transactional
     @Override
     public RegisterUserResDto signup(RegisterUserReqDto registerUserDto) {
         Optional<Role> optionalRole = roleRepository.findByName(RoleType.valueOf(registerUserDto.role()));
 
-        if(optionalRole.isEmpty()){
-            return null;
+        if(optionalRole.isEmpty()){ return null;}
+        if(userRepository.existsByEmail(registerUserDto.email())) {
+            throw new EmailAlreadyExistsException("A user with given email already exists" + registerUserDto.email());
         }
-
         User user = User.builder()
                 .firstName(registerUserDto.firstName())
                 .lastName(registerUserDto.lastName())
@@ -44,12 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
 
         User newAuthUser = userRepository.save(user);
-
-        return RegisterUserResDto.builder()
-                .email(newAuthUser.getEmail())
-                .firstName(newAuthUser.getFirstName())
-                .lastName(newAuthUser.getLastName())
-                .role(String.valueOf(newAuthUser.getRole())).build();
+        return UserMapper.toResponseDto(newAuthUser);
     }
 
     @Override

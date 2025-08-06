@@ -1,10 +1,10 @@
 package org.binitshrestha.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.binitshrestha.userservice.dto.LoginUserDto;
-import org.binitshrestha.userservice.dto.LoginUserResDto;
-import org.binitshrestha.userservice.dto.RegisterUserReqDto;
-import org.binitshrestha.userservice.dto.RegisterUserResDto;
+import org.binitshrestha.userservice.dto.request.LoginUserDto;
+import org.binitshrestha.userservice.dto.response.LoginUserResDto;
+import org.binitshrestha.userservice.dto.request.RegisterUserReqDto;
+import org.binitshrestha.userservice.dto.response.RegisterUserResDto;
 import org.binitshrestha.userservice.model.User;
 import org.binitshrestha.userservice.service.AuthenticationService;
 import org.binitshrestha.userservice.service.JwtService;

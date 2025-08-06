@@ -1,16 +1,15 @@
 package org.binitshrestha.userservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.binitshrestha.userservice.dto.UserRequestDto;
-import org.binitshrestha.userservice.dto.UserResponseDto;
-import org.binitshrestha.userservice.dto.UserResponse;
+import org.binitshrestha.userservice.dto.request.UserRequestDto;
+import org.binitshrestha.userservice.dto.response.UserResponseDto;
+import org.binitshrestha.userservice.dto.response.UserResponse;
 import org.binitshrestha.userservice.exception.EmailAlreadyExistsException;
 import org.binitshrestha.userservice.exception.UserNotFoundException;
 import org.binitshrestha.userservice.mapper.UserMapper;
 import org.binitshrestha.userservice.model.User;
 import org.binitshrestha.userservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,18 +26,6 @@ public class UserServiceImpl implements UserService{
                 .map(UserMapper::mapToUserResponse)
                 .toList();
     }
-
-    @Transactional
-    @Override
-    public UserResponseDto registerUser(UserRequestDto userCreateRequest){
-        if(userRepository.existsByEmail(userCreateRequest.email())) {
-            throw new RuntimeException("User has already been created");
-        }
-        User newUser = userRepository.save(UserMapper.toModel(userCreateRequest));
-
-        return UserMapper.toResponse(newUser);
-    }
-
     @Override
     public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto){
         User updateUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User Id not found," + id));
@@ -57,8 +44,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByEmail(username);
+    public Optional<User> findByEmail(String userEmail) {
+        return userRepository.findByEmail(userEmail);
     }
 
     @Override
