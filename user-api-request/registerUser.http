@@ -1,0 +1,10 @@
+POST localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "firstName": "Birendra",
+  "lastName": "Shrestha",
+  "email": "birendra.m@gmail.com",
+  "password": "encrypted0123",
+  "role": "LAWYER"
+}
