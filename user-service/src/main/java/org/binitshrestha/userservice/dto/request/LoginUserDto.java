@@ -1,4 +1,4 @@
-package org.binitshrestha.userservice.dto;
+package org.binitshrestha.userservice.dto.request;
 
 import lombok.Builder;
 
