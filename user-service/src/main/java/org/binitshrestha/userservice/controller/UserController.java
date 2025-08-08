@@ -2,7 +2,7 @@ package org.binitshrestha.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.binitshrestha.userservice.dto.request.UserRequestDto;
+import org.binitshrestha.userservice.dto.request.UserUpdateRequestDto;
 import org.binitshrestha.userservice.dto.response.UserResponse;
 import org.binitshrestha.userservice.dto.response.UserResponseDto;
 import org.binitshrestha.userservice.mapper.UserMapper;
@@ -26,30 +26,25 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserResponseDto> authenticatedUser(){
+    public ResponseEntity<UserResponseDto> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
         User user = userService.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         UserResponseDto response = UserMapper.toResponse(user);
-        log.debug("Authenticated userDto response value ->", response.toString());
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers(){
-        List<UserResponse> allUser = userService.getAllUsers();
-        return ResponseEntity.ok(allUser);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable("id") Long id, @RequestBody UserRequestDto userRequest){
+    @PutMapping("/{id}") // api for user
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable("id") Long id,
+            @RequestBody UserUpdateRequestDto userRequest) {
         UserResponseDto response = userService.updateUser(id, userRequest);
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id){
+    @DeleteMapping("/{id}") // api for admin
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

@@ -33,8 +33,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public RegisterUserResDto signup(RegisterUserReqDto registerUserDto) {
         Optional<Role> optionalRole = roleRepository.findByName(RoleType.valueOf(registerUserDto.role()));
 
-        if(optionalRole.isEmpty()){ return null;}
-        if(userRepository.existsByEmail(registerUserDto.email())) {
+        if (optionalRole.isEmpty()) {
+            return null;
+        }
+        if (userRepository.existsByEmail(registerUserDto.email())) {
             throw new EmailAlreadyExistsException("A user with given email already exists" + registerUserDto.email());
         }
         User user = User.builder()
@@ -42,8 +44,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .lastName(registerUserDto.lastName())
                 .email(registerUserDto.email())
                 .password(
-                        passwordEncoder.encode(registerUserDto.password())
-                )
+                        passwordEncoder.encode(registerUserDto.password()))
                 .role(optionalRole.get())
                 .build();
 
@@ -53,12 +54,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public User authenticate(LoginUserDto loginUserDto) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginUserDto.email(),
-                        loginUserDto.password()
-                )
-        );
-        return userRepository.findByEmail(loginUserDto.email()).orElseThrow();
+        try {
+            System.out.println("Attempting to authenticate user: " + loginUserDto.email());
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginUserDto.email(),
+                            loginUserDto.password()));
+            System.out.println("Authentication successful for: " + loginUserDto.email());
+            return userRepository.findByEmail(loginUserDto.email()).orElseThrow();
+        } catch (Exception e) {
+            System.out.println("Authentication failed for: " + loginUserDto.email() + " - " + e.getMessage());
+            throw e;
+        }
     }
 }
